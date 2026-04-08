@@ -1,133 +1,24 @@
 import os
+import sys
 import time
 from door import Door
 from puzzle import *
 from item import Item
 import puzzle
 from room import Room
+import random
 
 
 class Game:
     def __init__(self):
         self.rooms = []
-        self.item_indexes = []
-
-    def show_rooms(self):
-        self.print_Room()
-
-    # def print_Room(self, player_index):
-    #     columns=3
-    #     rows = len(self.rooms) // columns
-    #     horizontal_wall = "+-----"
-    #     empty_space = "|     "
-
-    #     index = 1
-
-    #     for r in range(rows):
-    #         # Top wall
-    #         print((horizontal_wall * columns) + "+")
-
-    #         # Room content line
-    #         line = ""
-    #         for c in range(columns):
-
-    #             # Decide what to display
-    #             symbol = ""
-    #             if index == player_index:
-    #                 symbol = "P "
-    #             elif index == 9:
-    #                 symbol = "֎ "
-
-    #             line += f"|  {symbol:^3}"
-    #             index += 1
-
-    #         line += "|"
-    #         print(line)
-
-    #         # Padding line
-    #         print((empty_space * columns) + "|")
-
-    #     # Bottom wall
-    #     print((horizontal_wall * columns) + "+")
-    #     time.sleep(1)
-
-    # def print_Room(self, player_index):
-        columns = 3
-        total_rooms = len(self.rooms)
-        rows = total_rooms // columns
-
-        for r in range(rows):
-
-            # ---------- TOP WALLS ----------
-            top_line = ""
-            for c in range(columns):
-                room_number = r * columns + c + 1      # ✅ 1-based
-                room = self.rooms[room_number - 1]    # ✅ convert to 0-based
-
-                if room.isDiscovered:
-                    top_line += "+-----"
-                else:
-                    top_line += "      "
-            if room.isDiscovered: top_line += "+"
-            print(top_line)
-
-            # ---------- CONTENT LINE ----------
-            content_line = ""
-            for c in range(columns):
-                room_number = r * columns + c + 1
-                room = self.rooms[room_number - 1]
-
-                if room.isDiscovered:
-                    symbol = ""
-                    if room_number == player_index:
-                        symbol = "P"
-                    elif room_number == 9:
-                        symbol = "֎"
-
-                    content_line += f"|  {symbol:^3}"
-                else:
-                    content_line += "      "
-
-            # Right wall only if the LAST room in the row is discovered
-            last_room_number = r * columns + columns
-            last_room = self.rooms[last_room_number - 1]
-            content_line += "|" if last_room.isDiscovered else ""
-            print(content_line)
-
-            # ---------- PADDING LINE ----------
-            padding_line = ""
-            for c in range(columns):
-                room_number = r * columns + c + 1
-                room = self.rooms[room_number - 1]
-
-                if room.isDiscovered:
-                    padding_line += "|     "
-                else:
-                    padding_line += "      "
-
-            padding_line += "|" if last_room.isDiscovered else ""
-            print(padding_line)
-
-        # ---------- BOTTOM WALLS ----------
-        bottom_line = ""
-        for c in range(columns):
-            room_number = total_rooms - columns + c + 1
-            room = self.rooms[room_number - 1]
-
-            if room.isDiscovered:
-                bottom_line += "+-----"
-            else:
-                bottom_line += "      "
-        bottom_line += "+"
-        print(bottom_line)
-
-        time.sleep(1)
 
     def print_Room(self, player_index):
         columns = 3
         total_rooms = len(self.rooms)
         rows = total_rooms // columns
 
+        complete_map = []
         for r in range(rows):
 
             # ---------- TOP WALLS ----------
@@ -140,7 +31,8 @@ class Game:
                     top_line += "+-----+"
                 else:
                     top_line += "       "
-            print(top_line)
+            top_line += "\n"
+            complete_map.append(top_line)
 
             # ---------- CONTENT LINE ----------
             content_line = ""
@@ -158,7 +50,8 @@ class Game:
                     content_line += f"| {symbol:^3} |"
                 else:
                     content_line += "       "
-            print(content_line)
+            content_line += "\n"
+            complete_map.append(content_line)
 
             # ---------- BOTTOM WALLS ----------
             bottom_line = ""
@@ -170,10 +63,51 @@ class Game:
                     bottom_line += "+-----+"
                 else:
                     bottom_line += "       "
-            print(bottom_line)
+            bottom_line += "\n"
+            complete_map.append(bottom_line)
+
+        for line in complete_map:
+            for c in line:
+                print(c, end="")
+                time.sleep(0.01)
+                
 
         time.sleep(1)
+
     
+    def title_print(self, ascii_art):
+        delay = 0.01
+        lines = ascii_art.splitlines()
+
+        # Normalize width
+        max_width = max(len(line) for line in lines)
+        padded_lines = [line.ljust(max_width) for line in lines]
+
+        # Animate column by column
+        for col in range(1, max_width + 1):
+            os.system('cls' if os.name == 'nt' else 'clear')
+            for line in padded_lines:
+                print(line[:col])
+            time.sleep(delay)
+
+    def slow_print(self, text, delay=0.1, blink=False):
+        for c in text:
+            nat_delay = random.uniform(0.01, delay)  # Randomize delay for a more natural effect
+            if c == "\n" and blink:
+                self.cursor_blink(2, 0.4)
+            else:
+                time.sleep(nat_delay)
+            print(c, end="")
+        print("")  # Move to the next line after printing the text
+
+    def cursor_blink(self, duration=5, interval=0.5):
+        end_time = time.time() + duration
+        while time.time() < end_time:
+            print("█", end="")
+            time.sleep(interval)
+            sys.stdout.write('\b \b')
+            time.sleep(interval)
+
     def game_loop(self, player):
         while not self.win_condition(player):
             choice_is_valid = False
@@ -189,12 +123,14 @@ class Game:
                         current_room_desc = room.other_description
                     time.sleep(1)
                     self.print_Room(player.position)
-                    print(current_room_desc)
+                    time.sleep(1)
+                    self.slow_print(current_room_desc)
                     print("")
+                    time.sleep(1)
                     room_choices = self.load_choices(room)
                     i = 0
                     for choice in room_choices:
-                        print(f"{i + 1}: {choice[1]}")
+                        self.slow_print(f"{i + 1}: {choice[1]}")
                         i += 1
                     print("")
                     
@@ -205,9 +141,9 @@ class Game:
                                 choice_is_valid = self.move_player(player, room.doors[door_choice])
                                 break
                             else:
-                                print("Invalid choice. Please try again.")
+                                self.slow_print("Invalid choice. Please try again.")
                         except ValueError:
-                            print("Invalid input. Please enter a number.")
+                            self.slow_print("Invalid input. Please enter a number.")
                             continue
 
     def load_choices(self, room):
@@ -221,30 +157,30 @@ class Game:
         if not door.isLocked():
             player.position = door.leads_to
             os.system('cls' if os.name == 'nt' else 'clear')
-            print(f"You move through the {door.name} to {door.leads_to.name}.")
+            self.slow_print(f"You move through the {door.name} to {door.leads_to.name}.")
             return True
         else:
             os.system('cls' if os.name == 'nt' else 'clear')
             if door.puzzle.solution is None:
-                print(f"{door.description}")
+                self.slow_print(f"{door.description}")
                 return False
-            print(f"The {door.name} is locked. You need to solve the puzzle to unlock it. Type 'exit' to go back.\n")
+            self.slow_print(f"The {door.name} is locked. You need to solve the puzzle to unlock it. Type 'exit' to go back.\n")
             self.solve_attempt(door.puzzle, player, door)
             return False
         
     def solve_attempt(self, puzzle, player, door):
-        print(puzzle.description)
+        self.slow_print(puzzle.description)
         user_input = input("Enter your solution: ")
         while not user_input.lower() == "exit":
             if puzzle.validate_attempt(user_input, player):
-                print("Puzzle solved! The door is now unlocked.")
+                self.slow_print("Puzzle solved! The door is now unlocked.")
                 door.unlock()
                 self.move_player(player, door)
                 return True
             else:
-                print("Incorrect solution. Try again.")
+                self.slow_print("Incorrect solution. Try again.")
                 user_input = input("Enter your solution: ")
-        print("Exiting puzzle attempt.")
+        self.slow_print("Exiting puzzle attempt.")
         return False
         
 
@@ -252,30 +188,37 @@ class Game:
         # Define the win condition for the game, such as reaching a specific room or collecting certain items
         for item in player._inventory:
             if item.name == "Portal":
-                print("Congratulations! You've found the portal and won the game!")
+                self.slow_print("Congratulations! You've found the portal and won the game!", delay=0.1)
                 return True
         return False
             
     def end_game(self):
-        print("Game Over. Thanks for playing!")
+        self.slow_print("Game Over. Thanks for playing!")
 
     def load_rooms(self):
-        r0_initial_desc = """When you wake up, 
-you have no idea where you are, and no memory of how you got here. 
-You are lying on the cold, hard ground, with one clear thought: 
-"I need to get out of here!" You look at your wrist, 
-and you can immediately see some kind of marking that looks like a tattoo, 
-and it reminds you of the room you are in. As you look around you, 
-you see a door in each of the four walls of your room. 
+        r0_initial_desc = """When you wake up, you have no idea where you are, and no memory of how you got here. 
+You are lying on the cold, hard ground, with one clear thought: "I need to get out of here!" 
+You look at your wrist, and you can immediately see some kind of marking that looks like a tattoo, 
+and it reminds you of the room you are in. As you look around you, you see two doors and a marking on the wall of your room. 
 You must get out of this place by any means necessary.
+
 But how?"""
+        r2_initial_desc = """This room is more like a hall. 
+You see two doors, one on the west wall and one on the east wall, as well as the south door that you came from.
+Both side doors seem to be locked. You cannot go anywhere else without attempting to unlock a door. 
+As you look down, movement catches your eye. The tatoo on your wrist seems to grow and shift--
+ink spreads across your skin and forms into two rooms now. It's a living map under your skin!
+You can see that your location is marked with a 'P', and the room you started from is marked as well.
+Maybe there are more rooms to uncover, and maybe you can find a way out of here if you explore them all.
+
+What now?"""
 
         # Initialize Rooms
         r1 = Room(1, "Room 1", "When you enter the room, you see storage shelves lining the walls, but they are mostly empty. However, you do find an odd looking key. You take the key and put in in the pocket of your clothes for later use.", "You are back in the empty storage room.")
-        r2 = Room(2, "Room 2", "This room has a strange feeling. You see two doors, one on the west wall and one on the east wall, as well as the south door that you came from. Both side doors seem to have puzzles attached. You cannot go anywhere else without attempting a puzzle. What now?", "You are back in Room 2.")
+        r2 = Room(2, "Room 2", r2_initial_desc, "You are back in Room 2.")
         r3 = Room(3, "Room 3", "The light you saw from the start room looks even brighter as it shines from under a doorway to the south.", "You go back through the airlock. It's a cool room, but you need to find the ID badge for the safe.")
         r4 = Room(4, "Room 4", "You are in Room 4, which almost looks like barracks. There are bunkbeds (still made), and someone appears to have written on the wall.", "You are back in the barracks. That pattern on the wall is really out of place...")
-        r0 = Room(5, "Start Room", r0_initial_desc, "You are back in the start room.", True)
+        r0 = Room(5, "Start Room", r0_initial_desc, "You are in the start room.", True)
         r6 = Room(6, "Room 6", "You are in Room 6. The light you saw from the start room looks even brighter as it shines from under a safe door to the south.", "You are back in Room 6.")
         r7 = Room(7, "Room 7", "You are in Room 7. This appears to be someone's study. A math equation is on the whiteboard behind an impressive desk. It looks complicated.", "You are back in the study in Room 7.")
         r8 = Room(8, "Room 8", "You are in Room 8, and you can finally see what that blue glow is! You stand in a room that appears to be a control room, with a bulletproof glass window separating you from a glowing blue circle on the floor of Room 9. 'This is where I need to go!' you realize. There's an ID badge on the table that just might help.", "You are back in Room 8.")

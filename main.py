@@ -1,19 +1,52 @@
 from game import Game
 from player import Player
+import time
+import os
 
 def main():
-    print("Welcome to the Text Adventure Game 2!")
+
+    title_screen = r"""
+====================================================================================================
+
+
+                           .=======================ooooooo
+                   ___   ,'    \_________________________________________
+                  /   /-/       /                           ////////////  ''--..._
+                  \___\-\       \                           \\\\\\\\\\\\  __..--'
+                         `---------------------------------''''''''''''''
+
+             ██▒   ██▄     █   ██ ▄█▀  ▄████▄   ▒▄█████▄   ▄█   █▄  ██▄     █   ▄█████▄
+            ▒██▒   ██ ▀█   █  ░██▄█▒ ░░██  ▐█▄▒▒▒██   ██   ██   ██  ██ ▀█   █▒▒▒██▒  ██▒
+            ▒██▒   ██  ▀█ ██▒▒░███▄░▒  ██▄▄▄█▀▒▒▒██   ██   ██   ██  ██  ▀█ ██   ██░   ██▒
+            ░██░   ██▒  ▐▌██▒░▒██ █▄░▒░██   ██░▒▒██   ██▒▒▒██   ██  ██▒  ▐▌██▒▒ ██   ██▒
+            ░██░▒▒▒██░   ▓██░░▒██▒ █▄▒░▀█▄▄▄█▀▒▒▒▀█████▀   ▀█████▀░░██░   ▓██  ▒█████▀▒░
+
+
+===================================================================================================="""
+    game_description = ["""You wake with no memory.
+A map is etched into your skin.
+Each step will reveal the truth.""", """Find the exit.
+Let the ink guide you.""", """Press Enter to wake from your dreams..."""]
 
     newgame = Game()
-    player = Player(5)  # Starting position (room index)
+    newgame.title_print(title_screen)
+    time.sleep(3)  # Pause for 3 seconds before showing the description
 
+    for line in game_description:
+        newgame.slow_print(line, blink=True)
+        newgame.cursor_blink(3, 0.3)  # Blink the cursor for 2 seconds after each line
+        print("")  # Add a newline after each line of the description
+
+    input()  # Wait for the player to press Enter
+
+    newgame.slow_print("System Starting...", delay=0.5)
+    newgame.cursor_blink(3, 0.5)
+    os.system('cls' if os.name == 'nt' else 'clear')  # Clear the console
+
+    player = Player(5)  # Starting position (room index)
     newgame.load_rooms()
+    newgame.slow_print(newgame.rooms[4].discover(player))  # Start in the initial room
     newgame.game_loop(player)
-    # Here you would set up your game world, puzzles, and items
-    # For example:
-    # key = Item("Key", "A small rusty key.")
-    # puzzle = Puzzle("Locked Door", "A door that requires a key to open.", key)
-    # Then you would have a game loop to interact with the player
 
 if __name__ == "__main__":
     main()
