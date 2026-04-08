@@ -90,7 +90,7 @@ class Game:
                 print(line[:col])
             time.sleep(delay)
 
-    def slow_print(self, text, delay=0.1, blink=False):
+    def slow_print(self, text, delay=0.03, blink=False):
         for c in text:
             nat_delay = random.uniform(0.01, delay)  # Randomize delay for a more natural effect
             if c == "\n" and blink:
@@ -136,7 +136,7 @@ class Game:
                     
                     while True:
                         try:
-                            door_choice = int(input("Which door would you like to go through? ")) - 1
+                            door_choice = int(input("What would you like to do? ")) - 1
                             if 0 <= door_choice < len(room_choices):
                                 choice_is_valid = self.move_player(player, room.doors[door_choice])
                                 break
@@ -149,7 +149,10 @@ class Game:
     def load_choices(self, room):
         choices = []
         for door in room.doors:
-            choice = [door.leads_to.index, f"Move through the {door.name}"]
+            if door.isWall:
+                choice = [None, f"Look at the {door.name}"]
+            else:
+                choice = [door.leads_to.index, f"The {door.name}: {door.description}"]
             choices.append(choice)
         return choices
 
@@ -161,7 +164,7 @@ class Game:
             return True
         else:
             os.system('cls' if os.name == 'nt' else 'clear')
-            if door.puzzle.solution is None:
+            if door.isWall:
                 self.slow_print(f"{door.description}")
                 return False
             self.slow_print(f"The {door.name} is locked. You need to solve the puzzle to unlock it. Type 'exit' to go back.\n")
@@ -188,7 +191,6 @@ class Game:
         # Define the win condition for the game, such as reaching a specific room or collecting certain items
         for item in player._inventory:
             if item.name == "Portal":
-                self.slow_print("Congratulations! You've found the portal and won the game!", delay=0.1)
                 return True
         return False
             
@@ -217,7 +219,7 @@ What now?"""
         r1 = Room(1, "Room 1", "When you enter the room, you see storage shelves lining the walls, but they are mostly empty. However, you do find an odd looking key. You take the key and put in in the pocket of your clothes for later use.", "You are back in the empty storage room.")
         r2 = Room(2, "Room 2", r2_initial_desc, "You are back in Room 2.")
         r3 = Room(3, "Room 3", "The light you saw from the start room looks even brighter as it shines from under a doorway to the south.", "You go back through the airlock. It's a cool room, but you need to find the ID badge for the safe.")
-        r4 = Room(4, "Room 4", "You are in Room 4, which almost looks like barracks. There are bunkbeds (still made), and someone appears to have written on the wall.", "You are back in the barracks. That pattern on the wall is really out of place...")
+        r4 = Room(4, "Room 4", "You are in Room 4, which almost looks like barracks. There are bunkbeds (still made), and someone appears to have written on the wall.", "You are back in the barracks.")
         r0 = Room(5, "Start Room", r0_initial_desc, "You are in the start room.", True)
         r6 = Room(6, "Room 6", "You are in Room 6. The light you saw from the start room looks even brighter as it shines from under a safe door to the south.", "You are back in Room 6.")
         r7 = Room(7, "Room 7", "You are in Room 7. This appears to be someone's study. A math equation is on the whiteboard behind an impressive desk. It looks complicated.", "You are back in the study in Room 7.")
@@ -245,37 +247,42 @@ What now?"""
 
         r6_r9_puzzle = KeyPuzzle("You see a door with an ID badge scanner.", "This door seems to be locked, but there is a scanner that looks like it is meant for an ID badge. Do you have the correct ID badge to unlock this door?", "", key2)
 
-        r4_r7_puzzle = PatternPuzzle("You see a door with a strange pattern.", "What could this pattern mean?", "The pattern resembles a star.")
+        r4_r7_puzzle = WordPuzzle("You see a door with a keypad.", "Since the door is ornate, maybe it's for someone special?", "Daniels")
 
         r7_r8_puzzle = NumberPuzzle("You see a door with a number pad.", "What is the code to unlock this door?", 6975349)
 
         # Initialize Doors
-        r0.add_door(Door("North Door", "You walk through a doorway that seems to have its door completely removed. You can still see the marks where the hinges were.", r2))
-        r0.add_door(Door("East Door", "The door here seems to be sealed, but there is a small crack in the frame, and a faint blue light bleeds through. Sunlight?", r6, unlockable_puzzle))
-        r0.add_door(Door("West Door", "The door is firm and made of metal. Is something important behind it?", r4, r0_r4_puzzle))
+        r0.add_door(Door("North Door", "A doorway that seems to have its door completely removed. You can still see the marks where the hinges were.", r2))
+        r0.add_door(Door("East Wall", "There is a small hole in the wall, and a faint blue light bleeds through. Sunlight?", None, isWall=True))
+        r0.add_door(Door("West Door", "Solid and metal. Is something important behind it?", r4, r0_r4_puzzle))
+        r0.add_door(Door("South Wall", "This wall is covered in frames where photographs of various people were probably displayed. All of the photos are gone, though. Only one nameplate remains: 'Commander Daniels.' What is this place? And why did it need a commander?", None, isWall=True))
 
-        r1.add_door(Door("East Door", "This door goes to Room 2.", r2))
+        r1.add_door(Door("East Door", "Back to Room 2.", r2))
 
-        r2.add_door(Door("North Door", "The door here is completely sealed and is bare, except for a poster with a soldier at attention and the word 'StarForce' emblazoned on it.", r9, unlockable_puzzle))
-        r2.add_door(Door("West Door", "This door goes back to Room 1.", r1, r2_r1_puzzle))
-        r2.add_door(Door("East Door", "This door goes to Room 3.", r3, r2_r3_puzzle))
-        r2.add_door(Door("South Door", "This door goes to the starting room.", r0))
+        r2.add_door(Door("North Wall", "The wall is bare, except for a poster with a soldier at attention and the word 'StarForce' emblazoned on it.", None, isWall=True))
+        r2.add_door(Door("West Door", "A door marked 'Storage.'", r1, r2_r1_puzzle))
+        r2.add_door(Door("East Door", "Looks like it needs a key.", r3, r2_r3_puzzle))
+        r2.add_door(Door("South Door", "Back to the starting room.", r0))
 
-        r3.add_door(Door("West Door", "This door goes back to Room 2.", r2))
-        r3.add_door(Door("South Door", "This door looks like an airlock designed to keep the atmosphere in. You can see a door that looks like a safe at the far end of the room. A mysterious blue glow emanates from it.", r6, r3_r6_puzzle))
+        r3.add_door(Door("West Door", "Back to Room 2.", r2))
+        r3.add_door(Door("South Door", "Looks like an airlock designed to keep the atmosphere in. You can see a door that looks like a safe at the far end of the room.", r6, r3_r6_puzzle))
 
-        r4.add_door(Door("East Door", "This door goes back to the start room.", r0))
-        r4.add_door(Door("South Door", "The door is ornate and made of ironwood. Something tells you this door may be the most important of all!", r7, r4_r7_puzzle))
+        r4.add_door(Door("East Door", "Back to the start room.", r0))
+        r4.add_door(Door("North Wall", "On the wall near someone's bunk, you see four faint numbers scratched into the wall: 5294. Could this be a clue for something?", None, isWall=True))
+        r4.add_door(Door("South Door", "Ornate and made of ironwood. Something tells you this door may be the most important of all!", r7, r4_r7_puzzle))
 
-        r6.add_door(Door("North Door", "This door goes back to Room 3.", r3))
-        r6.add_door(Door("South Door", "This door looks like a safe. There's no keyhole or pad for this one...just an ID badge scanner", r9, r6_r9_puzzle))
+        r6.add_door(Door("North Door", "Back to Room 3.", r3))
+        r6.add_door(Door("South Door", "Almost like a safe door. There's no keyhole or pad for this one...just an ID badge scanner.", r9, r6_r9_puzzle))
+        r6.add_door(Door("West Wall", "You can see through the hole back to the start room. It's amazing how far you've come!", None, isWall=True))
 
-        r7.add_door(Door("North Door", "This door goes back to the barracks.", r4))
-        r7.add_door(Door("East Door", "This door is heavy and iron, but it looks like it could be opened with the right code.", r8, r7_r8_puzzle))
+        r7.add_door(Door("North Door", "Back to the barracks.", r4))
+        r7.add_door(Door("South Wall", "This wall is covered in mathematical equations and diagrams. It looks like someone was trying to solve a very difficult problem, but it looks like the answer was erased. Thankfully, you can see the faint outline of the answer: 6975349.", None, isWall=True))
+        r7.add_door(Door("East Door", "Heavy and iron, but it looks like it could be opened with the right code.", r8, r7_r8_puzzle))
 
-        r8.add_door(Door("West Door", "This door goes back to the study.", r7))
+        r8.add_door(Door("West Door", "Back to the study.", r7))
 
-        r9.add_door(Door("North Door", "This door goes back to the airlock.", r6))
+        r9.add_door(Door("North Door", "Back through the airlock.", r6))
+        r9.add_door(Door("Portal", "The portal to freedom! Step through to escape and see what lies beyond!", None, None, isWall=True))
 
         # Add Rooms to the Game
         self.rooms.append(r1)

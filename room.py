@@ -14,20 +14,19 @@ class Room:
     def set_item(self, item):
         self.item = item
 
-    def remove_item(self):
-        self.item = None
-
     @property
     def isDiscovered(self):
         return self._isDiscovered
 
     def discover(self, player):
         self._isDiscovered = True
+        description = self.initial_description
         player.position = self
         if self.item:
             player._inventory.append(self.item)
             self.item = None
-        return self.initial_description
+            description += f"\n\nYou found {player._inventory[-1].description}."
+        return description
 
 
     

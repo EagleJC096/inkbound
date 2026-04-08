@@ -1,10 +1,11 @@
 class Door:
-    def __init__(self, name, description, leads_to, puzzle=None):
+    def __init__(self, name, description, leads_to, puzzle=None, isWall=False):
         self.name = name
         self.description = description
         self.leads_to = leads_to
         self.puzzle = puzzle
-        if puzzle:
+        self.isWall = isWall
+        if puzzle or isWall:
             self._isLocked = True
         else:
             self._isLocked = False
