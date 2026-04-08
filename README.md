@@ -1,8 +1,22 @@
+====================================================================================================
 
 
+                           .=======================ooooooo
+                   ___   ,'    \_________________________________________
+                  /   /-/       /                           ////////////  ''--..._
+                  \___\-\       \                           \\\\\\\\\\\\  __..--'
+                         `---------------------------------''''''''''''''
+
+             ██▒   ██▄     █   ██ ▄█▀  ▄████▄   ▒▄█████▄   ▄█   █▄  ██▄     █   ▄█████▄
+            ▒██▒   ██ ▀█   █  ░██▄█▒ ░░██  ▐█▄▒▒▒██   ██   ██   ██  ██ ▀█   █▒▒▒██▒  ██▒
+            ▒██▒   ██  ▀█ ██▒▒░███▄░▒  ██▄▄▄█▀▒▒▒██   ██   ██   ██  ██  ▀█ ██   ██░   ██▒
+            ░██░   ██▒  ▐▌██▒░▒██ █▄░▒░██   ██░▒▒██   ██▒▒▒██   ██  ██▒  ▐▌██▒▒ ██   ██▒
+            ░██░▒▒▒██░   ▓██░░▒██▒ █▄▒░▀█▄▄▄█▀▒▒▒▀█████▀   ▀█████▀░░██░   ▓██  ▒█████▀▒░
 
 
-*A Text‑Based Escape Room Puzzle Game*
+                                          by Mr. Spare
+====================================================================================================
+                              *A Text‑Based Escape Room Puzzle Game*
 
 📖 Overview
 
@@ -11,6 +25,7 @@ The player wakes up in an unfamiliar place with no memory and a mysterious tatto
 
 The game emphasizes exploration, logical reasoning, and narrative discovery, all delivered through a command-line interface.
 
+
 🎮 Gameplay Summary
 *   The player starts in the central room.
 *   The tattoo map begins incomplete and expands as rooms are visited.
@@ -18,6 +33,7 @@ The game emphasizes exploration, logical reasoning, and narrative discovery, all
     *   Solving puzzles
     *   Using items
 *   The goal is to reach the final room and escape.
+
 
 🧠 Core Features
 
@@ -28,6 +44,7 @@ The game emphasizes exploration, logical reasoning, and narrative discovery, all
 *   Locked and unlocked doors
 *   A clear win condition
 *   Atmospheric story integrated into gameplay
+
 
 🗂️ Project Structure
 
@@ -40,6 +57,7 @@ The game emphasizes exploration, logical reasoning, and narrative discovery, all
     ├── items.py         # Item and KeyItem classes
     ├── puzzles.py       # Puzzle base class and subclasses
     ├── README.md        # Project documentation
+
 
 🧱 Object-Oriented Design
 
@@ -66,6 +84,7 @@ OOP Concepts Used
 *   ✅ Inheritance
 *   ✅ Polymorphism
 *   ✅ Composition
+
 
 🧩 Puzzle Types
 
